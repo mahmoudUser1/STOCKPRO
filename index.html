@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StockPro | إدارة المتجر والمخزون</title>
+<style>
+:root{
+ --bg:#0b1220;--panel:#111b2e;--panel2:#17243a;--text:#eef3fb;--muted:#93a2b9;--line:#263650;
+ --navy:#17345f;--navy2:#214879;--gold:#e0b24f;--gold2:#f2cc72;--green:#39c58a;--red:#f06b6b;--blue:#5b91ff;
+ --shadow:0 14px 38px rgba(0,0,0,.24)
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:"Tajawal","Cairo",Tahoma,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{display:flex;min-height:100vh}.side{width:265px;background:linear-gradient(180deg,#10233f,#0c182b);border-left:1px solid #203452;padding:18px 13px;position:sticky;top:0;height:100vh;z-index:10}
+.brand{padding:10px 12px 25px;display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,var(--gold),#a8791e);display:grid;place-items:center;color:#0d1a2d;font-weight:900;font-size:19px;box-shadow:0 7px 22px #d7a83e28}.brand strong{font-size:21px;letter-spacing:.3px}.brand em{font-style:normal;color:var(--gold)}
+.nav-title{font-size:10px;color:#6f819b;padding:10px 13px 7px}.nav button{width:100%;border:0;background:transparent;color:#b9c6d9;padding:12px 13px;border-radius:12px;margin:3px 0;display:flex;align-items:center;gap:11px;text-align:right;transition:.18s}
+.nav button:hover{background:#ffffff0b;color:#fff}.nav button.active{background:linear-gradient(90deg,#1b3d69,#173052);color:#fff;box-shadow:inset 3px 0 0 var(--gold)}
+.ico{width:22px;height:22px;display:grid;place-items:center;flex:none}.ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.main{flex:1;min-width:0}.top{height:74px;background:#0e192bdb;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:8}.top h1{font-size:21px;margin:0}.top-right{display:flex;align-items:center;gap:10px}.user{font-size:12px;color:var(--muted);padding:9px 12px;background:#ffffff06;border:1px solid var(--line);border-radius:10px}
+.content{max-width:1500px;margin:auto;padding:30px}
+.view{display:none}
+.view.active{display:block}
+
+
+/* Premium dashboard layout */
+#dashboard.view.active{display:flex;flex-direction:column;gap:32px;padding-bottom:36px}
+#dashboard.view.active>*{margin:0!important}
+#dashboard.view.active .dashboard-section{margin:0!important}
+#dashboard.view.active .dashboard-stats{row-gap:20px;column-gap:20px}
+#dashboard.view.active .dashboard-main-grid{row-gap:24px;column-gap:24px}
+#dashboard.view.active .dashboard-panel{margin:0}
+#dashboard.view.active .dashboard-recent{margin:0}
+#dashboard.view.active .section-label{margin-bottom:16px}
+.dashboard-hero{min-height:176px;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:30px 34px;border:1px solid #2a3c5a;border-radius:24px;background:radial-gradient(circle at 12% 20%,#d9ad4512,transparent 30%),linear-gradient(135deg,#142744 0%,#0f1a2c 58%,#0c1524 100%);box-shadow:0 24px 55px #00000026;position:relative;overflow:hidden}
+.dashboard-hero:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #e0b24f1f;border-radius:50%;left:-100px;bottom:-175px;box-shadow:0 0 0 35px #e0b24f08,0 0 0 70px #e0b24f05}
+.dashboard-eyebrow{display:block;color:#d9b45b;font-size:10px;letter-spacing:2.5px;font-weight:800;margin-bottom:10px}
+.dashboard-hero h2{font-size:31px;margin:0 0 8px;font-weight:900;letter-spacing:-.5px}
+.dashboard-hero p{margin:0;color:#91a2ba;font-size:12px;max-width:620px;line-height:1.9}
+.dashboard-mark{width:112px;height:112px;flex:none;border:1px solid #e0b24f38;border-radius:28px;background:#0b1628aa;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:inset 0 1px #ffffff0a}
+.dashboard-mark span{font-size:30px;font-weight:950;letter-spacing:2px;color:#f1cb72}.dashboard-mark small{font-size:9px;color:#8191a8;margin-top:5px}
+.dashboard-section{margin-top:28px!important}
+.section-label{height:25px;display:flex;align-items:center;gap:10px;color:#8d9eb5;font-size:11px;font-weight:800;margin:0 3px 12px}.section-label i{height:1px;background:linear-gradient(90deg,#2a3a53,transparent);flex:1}
+.dashboard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.dashboard-stat{min-height:154px;padding:22px;border:1px solid #263954;border-radius:18px;background:linear-gradient(160deg,#15243a,#101a2b);box-shadow:0 14px 34px #0000001b;position:relative;overflow:hidden}
+.dashboard-stat:after{content:"";position:absolute;width:100px;height:100px;border-radius:50%;left:-45px;bottom:-55px;background:#e0b24f08}.dashboard-stat-products{border-top:2px solid #5b91ff}.dashboard-stat-value{border-top:2px solid #e0b24f}.dashboard-stat-moves{border-top:2px solid #39c58a}.dashboard-stat-alerts{border-top:2px solid #f06b6b}
+.stat-top{display:flex;align-items:center;justify-content:space-between}.stat-icon{font-size:9px;letter-spacing:1px;color:#71849e;border:1px solid #30435f;border-radius:8px;padding:5px 7px}.stat-caption{font-size:11px;color:#94a5ba;font-weight:700}.dashboard-stat .value{font-size:29px;font-weight:950;margin-top:24px;letter-spacing:-.5px}.dashboard-stat .hint{font-size:10px;margin-top:8px;color:#71839b}
+.dashboard-main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr);gap:20px}
+.dashboard-panel{border:1px solid #273a57;border-radius:20px;background:linear-gradient(180deg,#121e31,#0e1828);box-shadow:0 16px 38px #0000001b;overflow:hidden}.chart-panel,.alerts-panel{min-height:335px;padding:23px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.panel-kicker{font-size:9px;letter-spacing:2px;color:#d2ab55;font-weight:900}.panel-head h2{font-size:17px;margin:5px 0 3px}.panel-head p{font-size:10px;color:#71839b;margin:0}.panel-badge{font-size:9px;color:#aebdd0;border:1px solid #2b3e59;border-radius:20px;padding:7px 10px;white-space:nowrap}.alerts-panel #alerts{min-height:235px}.dashboard-recent{padding:23px}.recent-head{align-items:center;margin-bottom:14px}.recent-head .btn{white-space:nowrap}
+#dashboard #chart{min-height:235px}.chart{border-radius:14px}
+#dashboard #recent{border-top:1px solid #23344d}.dashboard-recent #recent>div{padding:15px 4px!important;border-bottom:1px solid #21334c!important}.dashboard-recent #recent>div:last-child{border-bottom:0!important}
+#dashboard .alert{padding:14px 4px!important;border-bottom:1px solid #23344d!important}.kpi-note{line-height:1.8}
+@media(max-width:1050px){.dashboard-stats{grid-template-columns:repeat(2,1fr)}.dashboard-main-grid{grid-template-columns:1fr}.dashboard-mark{width:90px;height:90px}}
+@media(max-width:650px){.dashboard-hero{padding:23px;min-height:160px}.dashboard-hero h2{font-size:25px}.dashboard-mark{display:none}.dashboard-stats{grid-template-columns:1fr}.dashboard-stat{min-height:140px}.dashboard-section{margin-top:22px!important}.chart-panel,.alerts-panel,.dashboard-recent{padding:18px}.recent-head{align-items:flex-start;flex-direction:column}.recent-head .btn{width:100%}}
+
+/* Dashboard sections are intentionally separated vertically. */
+#dashboard.view.active > * + *{margin-top:30px}
+#dashboard .grid{gap:20px}
+#dashboard .grid2{gap:24px}
+#dashboard > .card{margin-top:0!important}
+#dashboard .card{padding:22px}
+#dashboard .stat{min-height:145px}
+#dashboard .dashboard-section + .dashboard-section{padding-top:0}
+#dashboard .dashboard-panel{border-radius:20px}
+#dashboard .dashboard-stat{border-radius:18px}
+
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.grid2.single{grid-template-columns:1fr}
+.section-gap{margin-top:22px}
+.card{background:linear-gradient(180deg,var(--panel),#0f192a);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.stat{min-height:135px}.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:27px;font-weight:900;margin-top:12px}.hint{font-size:11px;color:var(--muted);margin-top:7px}.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold2)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 12px}.head h2{font-size:17px;margin:0}.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid transparent;background:var(--navy2);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;transition:.15s}.btn:hover{transform:translateY(-1px)}.btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#17233a}.btn.ghost{background:#ffffff06;border-color:var(--line);color:var(--text)}.btn.danger{background:#3a1c25;color:#ff9a9a;border-color:#67303b}.btn.small{padding:7px 10px;font-size:11px}
+.search{width:280px;max-width:100%;background:#0d1728;border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:10px;outline:0}.search:focus,input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px #e0b24f12}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}.table{width:100%;border-collapse:collapse;min-width:780px}.table th,.table td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:right;font-size:12px}.table th{color:#8293aa;background:#0d1728;font-size:11px}.table tr:hover td{background:#ffffff03}.table tr:last-child td{border-bottom:0}
+.badge{display:inline-flex;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:800}.ok{background:#123b2d;color:#59daa4}.warn{background:#3c3018;color:#f1ca64}.bad{background:#401e27;color:#ff9696}.neutral{background:#202e43;color:#a9bbd1}
+.form{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.field label{display:block;color:#8fa0b7;font-size:11px;margin:0 0 6px}.field input,.field select{width:100%;background:#0c1627;border:1px solid var(--line);color:var(--text);padding:11px;border-radius:9px;outline:0}.field input::placeholder{color:#5f7189}
+.modal{display:none;position:fixed;inset:0;background:#02060ccc;z-index:50;align-items:center;justify-content:center;padding:16px}.modal.show{display:flex}.modalbox{width:min(720px,100%);max-height:92vh;overflow:auto;background:#111c2f;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 25px 80px #0008}.modalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.modalhead h2{font-size:18px;margin:0}.x{border:0;background:#ffffff08;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.empty{text-align:center;padding:35px;color:var(--muted)}
+.chart{height:220px;display:flex;align-items:end;gap:10px;padding:22px 5px 5px;border-bottom:1px solid var(--line)}.barcol{height:100%;flex:1;display:flex;align-items:end;position:relative}.bar{width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--gold2),#9b711e);min-height:3px}.barlabel{position:absolute;bottom:-23px;width:100%;text-align:center;font-size:9px;color:var(--muted)}.barvalue{position:absolute;top:-18px;width:100%;text-align:center;font-size:9px;color:#b9c8db}
+.alert{padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.alert:last-child{border-bottom:0}
+.warehouse{display:flex;flex-direction:column;gap:11px}.warehouse-top{display:flex;justify-content:space-between;gap:10px}.warehouse .big{font-size:24px;font-weight:900}.progress{height:8px;background:#08111e;border-radius:20px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.camera{border:1px solid var(--line);background:#08111d;border-radius:13px;overflow:hidden}.camera video{width:100%;max-height:300px;display:block;background:#000}.scan-result{padding:12px;font-size:12px}.hidden{display:none!important}.kpi-note{font-size:11px;color:var(--muted)}
+.toast{position:fixed;left:18px;bottom:18px;background:#172a47;color:#fff;border:1px solid #2e4c72;padding:12px 16px;border-radius:11px;display:none;z-index:80;box-shadow:var(--shadow)}
+.barcode-box{background:#fff;color:#111;border-radius:10px;padding:16px;text-align:center;margin-top:16px}.barcode-lines{height:90px;display:flex;justify-content:center;align-items:stretch;overflow:hidden}.barcode-lines i{display:block;background:#111;height:90px}.barcode-code{font:700 16px monospace;letter-spacing:3px;margin-top:8px}.print-only{display:none}\n@media print{body *{visibility:hidden}.print-only,.print-only *{visibility:visible}.print-only{display:block;position:absolute;left:0;top:0;width:100%;background:#fff;color:#111;padding:30px}.check{display:flex;align-items:center;gap:8px;color:#b7c5d8;font-size:12px}.check input{accent-color:var(--gold)}}
+@media(max-width:1000px){.side{width:78px;padding:13px 7px}.brand{justify-content:center;padding-bottom:20px}.brand strong,.nav-title,.nav button span:last-child{display:none}.nav button{justify-content:center}.grid{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:620px){
+#dashboard.view.active > * + *{margin-top:22px}
+#dashboard .grid{gap:12px}
+#dashboard .grid2{gap:18px}
+#dashboard .card{padding:17px}
+.top{padding:0 14px}.content{padding:14px}.grid{grid-template-columns:1fr 1fr;gap:9px}.card{padding:14px}.stat{min-height:120px}.stat .value{font-size:21px}.form{grid-template-columns:1fr}.head{align-items:stretch;flex-direction:column}.tools{width:100%}.search{width:100%}.top h1{font-size:17px}.user{display:none}}
+
+/* Pro polish */
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}.side{transition:width .22s ease}.top{gap:16px}.top h1{flex:1}.top-actions{display:flex;align-items:center;gap:8px}.menu-toggle{display:none;border:1px solid var(--line);background:#ffffff08;color:#fff;border-radius:10px;padding:8px 11px}.sidebar-footer{margin-top:auto;padding:18px 13px 4px;color:#71839b;font-size:10px;line-height:1.7;border-top:1px solid #ffffff0b}.nav{min-height:calc(100vh - 130px);display:flex;flex-direction:column}.nav .nav-title:last-of-type{margin-top:8px}.nav button:last-child{margin-bottom:auto}.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:5px;box-shadow:0 0 0 4px #39c58a18}.backup-actions{display:flex;gap:8px;flex-wrap:wrap}.file-label{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.file-label input{display:none}.data-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.data-summary>div{padding:12px;border:1px solid var(--line);border-radius:10px;background:#ffffff04}.data-summary b{display:block;font-size:18px;margin-top:3px}.chart{position:relative}.chart-legend{display:flex;gap:14px;justify-content:flex-start;margin-top:15px;color:var(--muted);font-size:10px}.legend-item{display:inline-flex;align-items:center;gap:5px}.legend-dot{width:8px;height:8px;border-radius:2px}.legend-in{background:var(--gold2)}.legend-out{background:var(--blue)}.bar-pair{height:100%;display:flex;align-items:end;gap:3px;width:100%}.bar.out{background:linear-gradient(180deg,#76a6ff,#3b66ba)}
+@media(max-width:700px){.menu-toggle{display:inline-block}.side{position:fixed;right:0;transform:translateX(105%);width:265px;box-shadow:-20px 0 50px #0008}.side.open{transform:translateX(0)}.brand{justify-content:flex-start}.brand strong,.nav-title,.nav button span:last-child{display:block}.nav button{justify-content:flex-start}.sidebar-footer{display:block}.top{padding:0 14px}.top-actions{gap:5px}.data-summary{grid-template-columns:1fr}.dashboard-hero{gap:12px}}
+
+/* Mobile layout hotfix: the navigation becomes an off-canvas layer, never a flex column. */
+@media (max-width:1000px){
+ html,body{width:100%;min-width:0;overflow-x:hidden}
+ .app{display:block;width:100%;min-height:100vh}
+ .main{display:block;width:100%;min-width:0}
+ .side{position:fixed;top:0;right:0;bottom:0;left:auto;width:min(84vw,280px);height:100vh;margin:0;padding:18px 13px;z-index:40;transform:translateX(110%);transition:transform .22s ease;box-shadow:-18px 0 48px #0009}
+ .side.open{transform:translateX(0)}
+ .nav{min-height:calc(100vh - 110px)}
+ .content{width:100%;max-width:none;padding:12px}
+ .top{width:100%;height:64px;position:sticky;top:0;z-index:35}
+ .top h1{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .menu-toggle{position:relative;z-index:45}
+ .dashboard-hero{width:100%;padding:20px;border-radius:18px}
+ .dashboard-hero h2{font-size:24px}
+ .dashboard-hero p{font-size:11px}
+ .dashboard-stats{grid-template-columns:1fr 1fr!important;gap:10px}
+ .dashboard-stat{min-height:128px;padding:16px}
+ .dashboard-stat .value{font-size:23px}
+ .dashboard-main-grid{grid-template-columns:1fr!important}
+ .chart-panel,.alerts-panel,.dashboard-recent{min-width:0;padding:16px}
+ .grid{grid-template-columns:1fr!important}
+ .grid2{grid-template-columns:1fr!important}
+ .head{gap:10px}
+ .head h2{font-size:16px}
+ .tools,.tools .btn{width:100%}
+ .tools .btn{justify-content:center}
+ .table-wrap{max-width:100%;overflow-x:auto}
+ .form{grid-template-columns:1fr!important}
+}
+@media (max-width:390px){
+ .dashboard-stats{grid-template-columns:1fr!important}
+ .content{padding:10px}
+ .dashboard-hero h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+ <div class="brand"><div class="logo">S</div><strong>Stock<em>Pro</em></strong></div>
+ <nav class="nav">
+  <div class="nav-title">الرئيسية</div>
+  <button class="active" data-view="dashboard"><span class="ico">🏠</span><span>لوحة التحكم</span></button>
+  <div class="nav-title">الإدارة</div>
+  <button data-view="products"><span class="ico">▣</span><span>المنتجات</span></button>
+  <button data-view="warehouses"><span class="ico">▤</span><span>المخازن</span></button>
+  <button data-view="movements"><span class="ico">↕</span><span>حركات المخزون</span></button>
+  <button data-view="sales"><span class="ico">▥</span><span>المبيعات</span></button>
+  <button data-view="purchases"><span class="ico">＋</span><span>المشتريات</span></button>
+  <div class="nav-title">المتابعة</div>
+  <button data-view="reports"><span class="ico">◫</span><span>التقارير</span></button>
+  <button data-view="settings"><span class="ico">⚙</span><span>الإعدادات والحماية</span></button>
+ </nav>
+</aside>
+<main class="main">
+<header class="top"><button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">☰</button><h1 id="title">لوحة التحكم</h1><div class="top-right"><span class="user"><span class="status-dot"></span>مدير النظام</span></div></header>
+<div class="content">
+
+<section id="dashboard" class="view active">
+ <div class="dashboard-hero">
+  <div>
+   <span class="dashboard-eyebrow">STOCKPRO • CONTROL CENTER</span>
+   <h2>لوحة التحكم</h2>
+   <p>نظرة سريعة على المنتجات والمخزون والحركة اليومية — كل شيء مرتب أمامك بدون زحمة.</p>
+  </div>
+  <div class="dashboard-mark"><span>SP</span><small>إدارة المخزون</small></div>
+ </div>
+
+ <div class="dashboard-section">
+  <div class="section-label"><span>نظرة سريعة</span><i></i></div>
+  <div class="dashboard-stats">
+   <div class="dashboard-stat dashboard-stat-products"><div class="stat-top"><span class="stat-icon">01</span><span class="stat-caption">المنتجات</span></div><div class="value" id="sProducts">0</div><div class="hint">منتجات مسجلة حاليًا</div></div>
+   <div class="dashboard-stat dashboard-stat-value"><div class="stat-top"><span class="stat-icon">02</span><span class="stat-caption">قيمة المخزون</span></div><div class="value" id="sValue">0 ج.م</div><div class="hint">بحساب سعر التكلفة</div></div>
+   <div class="dashboard-stat dashboard-stat-moves"><div class="stat-top"><span class="stat-icon">03</span><span class="stat-caption">حركة اليوم</span></div><div class="value" id="sMoves">0</div><div class="hint">حركات وارد وصادر</div></div>
+   <div class="dashboard-stat dashboard-stat-alerts"><div class="stat-top"><span class="stat-icon">04</span><span class="stat-caption">تنبيهات</span></div><div class="value red" id="sAlerts">0</div><div class="hint">منتجات تحتاج متابعة</div></div>
+  </div>
+ </div>
+
+ <div class="dashboard-section dashboard-main-grid">
+  <div class="dashboard-panel chart-panel">
+   <div class="panel-head"><div><span class="panel-kicker">ACTIVITY</span><h2>حركة المخزون</h2><p>آخر 7 أيام</p></div><span class="panel-badge">وارد + صادر</span></div>
+   <div id="chart" class="chart"></div>
+  </div>
+  <div class="dashboard-panel alerts-panel">
+   <div class="panel-head"><div><span class="panel-kicker">STATUS</span><h2>حالة المخزون</h2><p>العناصر التي تستحق الانتباه</p></div></div>
+   <div id="alerts"></div>
+  </div>
+ </div>
+
+ <div class="dashboard-section">
+  <div class="dashboard-panel dashboard-recent">
+   <div class="panel-head recent-head"><div><span class="panel-kicker">RECENT</span><h2>آخر الحركات</h2><p>أحدث العمليات المسجلة في النظام</p></div><button class="btn ghost small" data-go="movements">عرض سجل الحركات</button></div>
+   <div id="recent"></div>
+  </div>
+ </div>
+</section>
+
+<section id="products" class="view">
+ <div class="head"><h2>المنتجات والعبوات</h2><div class="tools"><input id="search" class="search" placeholder="بحث بالاسم أو الكود"><button id="addProduct" class="btn gold">+ إضافة منتج</button><button id="openScanner" class="btn">▣ مسح بالكاميرا</button></div></div>
+ <div class="card" style="margin-bottom:14px"><div class="kpi-note">يمكنك تعريف العبوة والوحدة، المخزون الابتدائي، حد إعادة الطلب، التكلفة وسعر البيع. ويمكن استخدام الكاميرا لقراءة باركود المنتج إذا كان المتصفح يدعم ذلك.</div></div>
+ <div class="table-wrap"><table class="table"><thead><tr><th>الكود</th><th>المنتج</th><th>العبوة</th><th>المتاح</th><th>التكلفة</th><th>سعر البيع</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="productsBody"></tbody></table></div>
+</section>
+
+<section id="warehouses" class="view">
+ <div class="head"><h2>صفحة المخازن</h2><button id="addWarehouse" class="btn gold">+ إضافة مخزن</button></div>
+ <div class="grid2 single" id="warehouseGrid"></div>
+</section>
+
+<section id="movements" class="view">
+ <div class="head"><h2>حركات المخزون</h2><div class="tools"><button id="addMovement" class="btn gold">+ إضافة حركة</button></div></div>
+ <div class="card" style="margin-bottom:14px"><span class="kpi-note">الحذف والتعديل محميان بكلمة مرور. لا يمكن حذف حركة أحدث من 48 ساعة؛ الهدف الحفاظ على سجل المخزون.</span></div>
+ <div class="table-wrap"><table class="table"><thead><tr><th>التاريخ</th><th>النوع</th><th>المنتج</th><th>الكمية</th><th>المخزن</th><th>الملاحظات</th><th>إجراءات</th></tr></thead><tbody id="movesBody"></tbody></table></div>
+</section>
+
+<section id="sales" class="view">
+ <div class="head"><h2>المبيعات والفواتير</h2><button id="newSale" class="btn gold">+ فاتورة بيع</button></div>
+ <div class="grid">
+  <div class="card stat"><div class="label">مبيعات اليوم</div><div class="value" id="salesToday">0 ج.م</div></div>
+  <div class="card stat"><div class="label">عدد الفواتير</div><div class="value" id="salesCount">0</div></div>
+  <div class="card stat"><div class="label">إجمالي المبيعات</div><div class="value" id="salesTotal">0 ج.م</div></div>
+  <div class="card stat"><div class="label">صافي الربح</div><div class="value green" id="salesProfit">0 ج.م</div></div>
+ </div>
+ <div class="card"><div class="head"><h2>الفواتير</h2></div><div id="salesTable"></div></div>
+</section>
+
+<section id="purchases" class="view">
+ <div class="head"><h2>المشتريات والموردون</h2><button id="newPurchase" class="btn gold">+ فاتورة شراء</button></div>
+ <div class="grid">
+  <div class="card stat"><div class="label">مشتريات اليوم</div><div class="value" id="purchasesToday">0 ج.م</div></div>
+  <div class="card stat"><div class="label">عدد الفواتير</div><div class="value" id="purchasesCount">0</div></div>
+  <div class="card stat"><div class="label">إجمالي المشتريات</div><div class="value" id="purchasesTotal">0 ج.م</div></div>
+ </div>
+ <div class="card"><div class="head"><h2>فواتير الشراء</h2></div><div id="purchasesTable"></div></div>
+</section>
+
+<section id="reports" class="view">
+ <div class="head"><h2>التقارير</h2></div>
+ <div class="grid">
+  <div class="card stat"><div class="label">قيمة المخزون</div><div class="value" id="rValue">0</div></div>
+  <div class="card stat"><div class="label">المنتجات الحرجة</div><div class="value red" id="rLow">0</div></div>
+  <div class="card stat"><div class="label">إجمالي الوحدات</div><div class="value" id="rUnits">0</div></div>
+  <div class="card stat"><div class="label">قيمة البيع المتوقعة</div><div class="value gold" id="rRetail">0</div></div>
+ </div>
+ <div class="card"><div class="head"><h2>ملخص الربحية</h2></div><div id="profitReport"></div></div>
+</section>
+
+<section id="settings" class="view">
+ <div class="head"><h2>الإعدادات والحماية</h2></div>
+ <div class="grid2">
+  <div class="card"><h3>كلمة مرور الإدارة</h3><p class="kpi-note">كلمة المرور الافتراضية لهذه النسخة: <b class="gold">1234</b>. غيّرها من هنا فورًا إذا أردت. تُستخدم لتعديل أو حذف حركات المخزون.</p>
+   <form id="passwordForm"><div class="form" style="grid-template-columns:1fr"><div class="field"><label>كلمة المرور الحالية</label><input type="password" name="old"></div><div class="field"><label>كلمة المرور الجديدة</label><input type="password" name="new" minlength="4" required></div><div class="field"><label>تأكيد كلمة المرور</label><input type="password" name="confirm" minlength="4" required></div></div><button class="btn gold" style="margin-top:14px">حفظ كلمة المرور</button></form>
+  </div>
+  <div class="card"><h3>المظهر والكاميرا</h3><p class="kpi-note">الوضع الداكن هو الوضع الافتراضي للاستخدام الطويل.</p><label class="check"><input type="checkbox" id="darkMode" checked disabled> الوضع الداكن مفعل</label>
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <h3>صلاحية الكاميرا</h3><p class="kpi-note">يمكنك طلب صلاحية الكاميرا مرة أخرى من هنا. المتصفح/أندرويد هو الذي يعرض نافذة السماح الفعلية.</p>
+  <button id="requestCamera" class="btn">طلب صلاحية الكاميرا</button><span id="cameraState" class="kpi-note" style="margin-right:10px"></span>
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>بيانات النظام</h3><p class="kpi-note">كل البيانات محفوظة محليًا داخل هذا المتصفح. خذ نسخة احتياطية قبل نقل المتصفح أو مسح بياناته.</p><div class="backup-actions"><button id="exportData" class="btn">تصدير نسخة احتياطية</button><label class="btn ghost file-label">استيراد نسخة <input id="importData" type="file" accept="application/json"></label><button id="resetDemo" class="btn danger">مسح بيانات البرنامج</button></div><div class="data-summary"><div><span class="kpi-note">منتجات</span><b id="dataProducts">0</b></div><div><span class="kpi-note">حركات</span><b id="dataMovements">0</b></div><div><span class="kpi-note">فواتير</span><b id="dataInvoices">0</b></div></div></div>
+ </div>
+</section>
+</div></main></div>
+
+<div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="x" id="close">×</button></div><div id="modalBody"></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const KEY="stockpro_commercial_v2";
+const defaultData={
+ password:"1234",
+ products:[],
+ warehouses:[{id:1,name:"المخزن الرئيسي",location:"الفرع الرئيسي",capacity:1000}],
+ movements:[],
+ sales:[],purchases:[]
+};
+let data;
+try{data=JSON.parse(localStorage.getItem(KEY)||"null")||structuredClone(defaultData)}catch(e){data=structuredClone(defaultData);localStorage.removeItem(KEY)}
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const money=n=>Number(n||0).toLocaleString("ar-EG")+" ج.م";
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[c]));
+const safeNumber=(v,min=0)=>Math.max(min,Number.isFinite(+v)?+v:min);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function toast(t){const x=$("#toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+function openModal(title,body){$("#modalTitle").textContent=title;$("#modalBody").innerHTML=body;$("#modal").classList.add("show")}
+function closeModal(){$("#modal").classList.remove("show")}
+$("#close").onclick=closeModal;$("#modal").onclick=e=>{if(e.target.id==="modal")closeModal()};
+
+const names={dashboard:"لوحة التحكم",products:"المنتجات",warehouses:"المخازن",movements:"حركات المخزون",sales:"المبيعات",purchases:"المشتريات",reports:"التقارير",settings:"الإعدادات والحماية"};
+function go(id){$$(".view").forEach(v=>v.classList.remove("active"));$("#"+id).classList.add("active");$$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));$("#title").textContent=names[id];render()}
+$$(".nav button").forEach(b=>b.onclick=()=>{go(b.dataset.view);$(".side").classList.remove("open")});
+$("#menuToggle").onclick=()=>$(".side").classList.toggle("open");
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go)});
+
+function render(){
+ const value=data.products.reduce((a,p)=>a+p.stock*p.cost,0), retail=data.products.reduce((a,p)=>a+p.stock*p.price,0);
+ const low=data.products.filter(p=>p.stock<=p.min);
+ const today=new Date().toISOString().slice(0,10);
+ $("#sProducts").textContent=data.products.length;$("#sValue").textContent=money(value);
+ $("#sMoves").textContent=data.movements.filter(m=>m.dateKey===today).length;$("#sAlerts").textContent=low.length;
+ $("#rValue").textContent=money(value);$("#rRetail").textContent=money(retail);$("#rLow").textContent=low.length;
+ $("#rUnits").textContent=data.products.reduce((a,p)=>a+p.stock,0);
+ renderProducts();renderWarehouses();renderMovements();renderDashboard();renderSales();renderPurchases();renderReports();const dp=$("#dataProducts"),dm=$("#dataMovements"),di=$("#dataInvoices");if(dp)dp.textContent=data.products.length;if(dm)dm.textContent=data.movements.length;if(di)di.textContent=data.sales.length+data.purchases.length
+}
+function renderProducts(){
+ const q=($("#search")?.value||"").trim().toLowerCase();
+ const arr=data.products.filter(p=>(p.name+" "+p.code).toLowerCase().includes(q));
+ $("#productsBody").innerHTML=arr.map(p=>`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.pack}</td><td><b>${p.stock}</b></td><td>${money(p.cost)}</td><td>${money(p.price)}</td><td><span class="badge ${p.stock<=p.min?"bad":"ok"}">${p.stock<=p.min?"إعادة طلب":"جيد"}</span></td><td><div class="actions"><button class="btn ghost small" onclick="editProduct(${p.id})">تعديل</button><button class="btn small" onclick="showBarcode(${p.id})">باركود</button><button class="btn danger small" onclick="deleteProduct(${p.id})">حذف</button></div></td></tr>`).join("")||`<tr><td colspan="8" class="empty">لا توجد منتجات مطابقة</td></tr>`
+}
+function renderWarehouses(){
+ $("#warehouseGrid").innerHTML=data.warehouses.map(w=>{
+   const stock=data.movements.filter(m=>m.warehouseId===w.id).reduce((a,m)=>a+(m.type==="وارد"?m.qty:-m.qty),0);
+   const pct=Math.max(0,Math.min(100,stock/w.capacity*100));
+   return `<div class="card warehouse"><div class="warehouse-top"><div><h3 style="margin:0 0 5px">${w.name}</h3><span class="kpi-note">${w.location}</span></div><span class="badge neutral">مخزن</span></div><div><div class="big">${Math.max(0,stock)} <small style="font-size:11px;color:var(--muted)">وحدة</small></div><div class="progress"><i style="width:${pct}%"></i></div><div class="kpi-note" style="margin-top:7px">السعة: ${w.capacity} وحدة</div></div><div class="actions"><button class="btn ghost small" onclick="editWarehouse(${w.id})">تعديل</button><button class="btn danger small" onclick="deleteWarehouse(${w.id})">حذف</button></div></div>`
+ }).join("")
+}
+function renderMovements(){
+ $("#movesBody").innerHTML=data.movements.slice().sort((a,b)=>b.createdAt-a.createdAt).map(m=>{
+   const age=Date.now()-m.createdAt, locked=age<48*60*60*1000;
+   return `<tr><td>${new Date(m.createdAt).toLocaleString("ar-EG")}</td><td><span class="badge ${m.type==="وارد"?"ok":"warn"}">${m.type}</span></td><td>${m.product}</td><td>${m.qty}</td><td>${m.warehouse}</td><td>${m.note||"-"}</td><td><div class="actions"><button class="btn ghost small" onclick="editMovement(${m.id})">تعديل</button><button class="btn danger small" onclick="removeMovement(${m.id})">${locked?"🔒":"حذف"}</button></div></td></tr>`
+ }).join("")||`<tr><td colspan="7" class="empty">لا توجد حركات مخزون حتى الآن</td></tr>`
+}
+function renderDashboard(){
+ const low=data.products.filter(p=>p.stock<=p.min);
+ $("#alerts").innerHTML=low.length?low.map(p=>`<div class="alert"><div><b>${p.name}</b><div class="kpi-note">المتاح ${p.stock} — حد إعادة الطلب ${p.min}</div></div><span class="badge bad">تنبيه</span></div>`).join(""):`<div class="empty">المخزون مستقر حاليًا ✓</div>`;
+ $("#recent").innerHTML=data.movements.length?`<div class="table-wrap"><table class="table"><tbody>${data.movements.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,5).map(m=>`<tr><td>${new Date(m.createdAt).toLocaleString("ar-EG")}</td><td>${m.type}</td><td>${m.product}</td><td>${m.qty}</td><td>${m.warehouse}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">لا توجد حركة مخزون مسجلة بعد</div>`;
+ const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);const incoming=data.movements.filter(m=>m.dateKey===key&&m.type==="وارد").reduce((a,m)=>a+m.qty,0);const outgoing=data.movements.filter(m=>m.dateKey===key&&m.type==="صادر").reduce((a,m)=>a+m.qty,0);days.push({key,incoming,outgoing,label:d.toLocaleDateString("ar-EG",{weekday:"short"})})}
+ const max=Math.max(1,...days.map(d=>Math.max(d.incoming,d.outgoing)));
+ $("#chart").innerHTML=days.map(d=>`<div class="barcol"><div class="bar" style="height:${Math.max(3,d.incoming/max*100)}%;position:relative"><span class="barvalue">${d.incoming}</span></div><div class="barlabel">${d.label}</div></div>`).join("")+
+ `<div style="font-size:9px;color:var(--muted);position:absolute;opacity:0">.</div>`;
+}
+function formProduct(p={id:null,code:"",name:"",pack:"قطعة",stock:0,cost:0,price:0,min:10}){
+ openModal(p.id?"تعديل المنتج":"إضافة منتج",`<form id="productForm"><div class="form">
+ <div class="field"><label>اسم المنتج</label><input name="name" required value="${p.name}"></div>
+ <div class="field"><label>كود المنتج</label><input name="code" required value="${p.code}" placeholder="مثال: 6221001234567"><div class="kpi-note">يمكنك كتابة الكود أو توليده تلقائيًا.</div></div>
+ <div class="field"><label>العبوة / الوحدة</label><input name="pack" required value="${p.pack}"></div>
+ <div class="field"><label>المخزون الابتدائي</label><input name="stock" type="number" min="0" value="${p.stock}"></div>
+ <div class="field"><label>سعر التكلفة</label><input name="cost" type="number" min="0" step=".01" value="${p.cost}"></div>
+ <div class="field"><label>سعر البيع</label><input name="price" type="number" min="0" step=".01" value="${p.price}"></div>
+ <div class="field"><label>حد إعادة الطلب</label><input name="min" type="number" min="0" value="${p.min}"></div>
+ </div><div class="actions" style="margin-top:16px"><button class="btn gold">حفظ</button><button type="button" class="btn ghost" onclick="closeModal()">إلغاء</button></div></form>`);
+ $("#productForm").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const o={id:p.id||Date.now(),code:f.get("code"),name:f.get("name"),pack:f.get("pack"),stock:+f.get("stock"),cost:+f.get("cost"),price:+f.get("price"),min:+f.get("min")};if(p.id)data.products=data.products.map(x=>x.id===p.id?o:x);else data.products.push(o);save();closeModal();toast("تم حفظ المنتج")};
+}
+function editProduct(id){formProduct(data.products.find(p=>p.id===id))}
+function deleteProduct(id){if(data.movements.some(m=>m.productId===id)||data.sales.some(x=>x.productId===id)||data.purchases.some(x=>x.productId===id)){toast("لا يمكن حذف منتج مرتبط بحركات أو فواتير");return}if(confirm("حذف المنتج نهائيًا؟")){data.products=data.products.filter(p=>p.id!==id);save();toast("تم حذف المنتج")}}
+$("#addProduct").onclick=()=>formProduct();$("#search").oninput=renderProducts;
+
+function movementForm(m=null){
+ const opts=data.products.map(p=>`<option ${m&&m.productId===p.id?"selected":""} value="${p.id}">${p.name}</option>`).join("");
+ const wh=data.warehouses.map(w=>`<option ${m&&m.warehouseId===w.id?"selected":""} value="${w.id}">${w.name}</option>`).join("");
+ openModal(m?"تعديل حركة المخزون":"إضافة حركة مخزون",`<form id="movementForm"><div class="form">
+ <div class="field"><label>نوع الحركة</label><select name="type"><option ${m?.type==="وارد"?"selected":""}>وارد</option><option ${m?.type==="صادر"?"selected":""}>صادر</option></select></div>
+ <div class="field"><label>المنتج</label><select name="productId" required>${opts}</select></div>
+ <div class="field"><label>الكمية</label><input name="qty" type="number" min="1" required value="${m?.qty||1}"></div>
+ <div class="field"><label>المخزن</label><select name="warehouseId" required>${wh}</select></div>
+ <div class="field"><label>ملاحظات</label><input name="note" value="${m?.note||""}"></div>
+ </div><div class="actions" style="margin-top:16px"><button class="btn gold">حفظ الحركة</button><button type="button" class="btn ghost" onclick="closeModal()">إلغاء</button></div></form>`);
+ $("#movementForm").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),pid=+f.get("productId"),wid=+f.get("warehouseId"),qty=+f.get("qty"),type=f.get("type"),prod=data.products.find(p=>p.id===pid),wh=data.warehouses.find(w=>w.id===wid);if(!prod||!wh||qty<1)return;
+   if(m){const old=data.movements.find(x=>x.id===m.id);const oldP=data.products.find(p=>p.id===old.productId);oldP.stock += old.type==="وارد"?-old.qty:old.qty;if(type==="صادر"&&prod.stock<qty){oldP.stock += old.type==="وارد"?old.qty:-old.qty;toast("الكمية غير متاحة");return}prod.stock += type==="وارد"?qty:-qty;Object.assign(old,{type,productId:pid,product:prod.name,qty,warehouseId:wid,warehouse:wh.name,note:f.get("note")});}
+   else {if(type==="صادر"&&prod.stock<qty){toast("الكمية غير متاحة في المخزون");return}prod.stock+=type==="وارد"?qty:-qty;const now=Date.now();data.movements.push({id:now,createdAt:now,dateKey:new Date(now).toISOString().slice(0,10),type,productId:pid,product:prod.name,qty,warehouseId:wid,warehouse:wh.name,note:f.get("note")})}
+   save();closeModal();toast("تم حفظ الحركة")};
+}
+$("#addMovement").onclick=()=>movementForm();
+function passwordGate(action){openModal("تأكيد كلمة المرور",`<form id="gate"><p class="kpi-note">هذه العملية محمية. أدخل كلمة مرور الإدارة للمتابعة.</p><div class="field"><label>كلمة المرور</label><input name="pass" type="password" autofocus required></div><button class="btn gold" style="margin-top:14px">تأكيد</button></form>`);$("#gate").onsubmit=e=>{e.preventDefault();if(e.target.pass.value===data.password){closeModal();action()}else toast("كلمة المرور غير صحيحة")}}
+function removeMovement(id){const m=data.movements.find(x=>x.id===id);if(!m)return;if(Date.now()-m.createdAt<48*60*60*1000){toast("لا يمكن حذف الحركة قبل مرور 48 ساعة");return}passwordGate(()=>{const p=data.products.find(x=>x.id===m.productId);if(p)p.stock += m.type==="وارد"?-m.qty:m.qty;data.movements=data.movements.filter(x=>x.id!==id);save();toast("تم حذف الحركة")})}
+function editMovement(id){const m=data.movements.find(x=>x.id===id);passwordGate(()=>movementForm(m))}
+function formWarehouse(w={id:null,name:"",location:"",capacity:1000}){
+ openModal(w.id?"تعديل المخزن":"إضافة مخزن",`<form id="wh"><div class="form"><div class="field"><label>اسم المخزن</label><input name="name" required value="${w.name}"></div><div class="field"><label>الموقع / الفرع</label><input name="location" required value="${w.location}"></div><div class="field"><label>السعة</label><input name="capacity" type="number" min="1" required value="${w.capacity}"></div></div><div class="actions" style="margin-top:16px"><button class="btn gold">حفظ</button></div></form>`);
+ $("#wh").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),o={id:w.id||Date.now(),name:f.get("name"),location:f.get("location"),capacity:+f.get("capacity")};if(w.id)data.warehouses=data.warehouses.map(x=>x.id===w.id?o:x);else data.warehouses.push(o);save();closeModal();toast("تم حفظ المخزن")}
+}
+$("#addWarehouse").onclick=()=>formWarehouse();
+function editWarehouse(id){formWarehouse(data.warehouses.find(w=>w.id===id))}
+function deleteWarehouse(id){if(data.warehouses.length<=1){toast("يجب أن يبقى مخزن واحد على الأقل");return}if(data.movements.some(m=>m.warehouseId===id)){toast("لا يمكن حذف مخزن لديه حركات مسجلة");return}if(confirm("حذف المخزن؟")){data.warehouses=data.warehouses.filter(w=>w.id!==id);save()}}
+function invoiceForm(kind){
+ const isSale=kind==="sale";
+ const products=data.products;
+ openModal(isSale?"فاتورة بيع جديدة":"فاتورة شراء جديدة",`<form id="invoice">
+ <div class="form">
+  <div class="field"><label>${isSale?"العميل":"المورد"}</label><input name="party" required placeholder="${isSale?"اسم العميل":"اسم المورد"}"></div>
+  <div class="field"><label>المنتج</label>
+   <select name="productId" id="invoiceProduct" ${products.length?"":"disabled"}>${products.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}</select>
+   ${!isSale?`<div class="kpi-note" style="margin-top:7px">منتج جديد؟ <button type="button" class="btn small" onclick="quickPurchaseProduct()">+ تعريف منتج جديد</button></div>`:""}
+  </div>
+  <div class="field"><label>الكمية</label><input name="qty" type="number" min="1" value="1" required></div>
+  <div class="field"><label>${isSale?"سعر البيع للوحدة":"سعر الشراء للوحدة"}</label><input name="price" type="number" min="0" step=".01" value="${products[0]?.[isSale?"price":"cost"]||0}" required></div>
+ </div>
+ <div class="actions" style="margin-top:16px"><button class="btn gold">حفظ الفاتورة</button><button type="button" class="btn ghost" onclick="closeModal()">إلغاء</button></div>
+ </form>`);
+ if(!products.length) $("#invoiceProduct").outerHTML='<div class="kpi-note">لا توجد منتجات بعد. استخدم «تعريف منتج جديد» ثم أنشئ الفاتورة.</div>';
+ $("#invoice").onsubmit=e=>{
+  e.preventDefault();
+  const f=new FormData(e.target),pid=+f.get("productId"),qty=+f.get("qty"),price=+f.get("price"),p=data.products.find(x=>x.id===pid),now=Date.now();
+  if(!p){toast("عرّف المنتج أولًا");return}
+  if(isSale&&p.stock<qty){toast("الكمية غير متاحة في المخزون");return}
+  const inv={id:now,date:now,number:(isSale?"S-":"P-")+String(now).slice(-6),party:esc(f.get("party")),productId:p.id,product:p.name,qty,total:qty*price,cost:qty*p.cost};
+  if(isSale){p.stock-=qty;data.sales.push(inv)}else{p.stock+=qty;p.cost=price;data.purchases.push(inv)}
+  const wh=data.warehouses[0];
+  data.movements.push({id:now+1,createdAt:now,dateKey:new Date(now).toISOString().slice(0,10),type:isSale?"صادر":"وارد",productId:p.id,product:p.name,qty,warehouseId:wh.id,warehouse:wh.name,note:"فاتورة "+inv.number});
+  save();closeModal();toast("تم حفظ الفاتورة");
+ }
+}
+function quickPurchaseProduct(){
+ closeModal();
+ setTimeout(()=>formProduct({id:null,code:"",name:"",pack:"قطعة",stock:0,cost:0,price:0,min:10,fromPurchase:true}),100);
+}
+$("#newSale").onclick=()=>invoiceForm("sale");$("#newPurchase").onclick=()=>invoiceForm("purchase");
+function renderSales(){const t=data.sales.reduce((a,x)=>a+x.total,0),profit=data.sales.reduce((a,x)=>a+x.total-x.cost,0),today=new Date().toISOString().slice(0,10);$("#salesTotal").textContent=money(t);$("#salesCount").textContent=data.sales.length;$("#salesProfit").textContent=money(profit);$("#salesToday").textContent=money(data.sales.filter(x=>new Date(x.date).toISOString().slice(0,10)===today).reduce((a,x)=>a+x.total,0));$("#salesTable").innerHTML=data.sales.length?`<div class="table-wrap"><table class="table"><thead><tr><th>الفاتورة</th><th>العميل</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>التاريخ</th></tr></thead><tbody>${data.sales.slice().reverse().map(x=>`<tr><td>${x.number}</td><td>${x.party}</td><td>${x.product}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${new Date(x.date).toLocaleString("ar-EG")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">لا توجد فواتير بيع بعد — اضغط «فاتورة بيع» للبدء.</div>`}
+function renderPurchases(){const t=data.purchases.reduce((a,x)=>a+x.total,0),today=new Date().toISOString().slice(0,10);$("#purchasesTotal").textContent=money(t);$("#purchasesCount").textContent=data.purchases.length;$("#purchasesToday").textContent=money(data.purchases.filter(x=>new Date(x.date).toISOString().slice(0,10)===today).reduce((a,x)=>a+x.total,0));$("#purchasesTable").innerHTML=data.purchases.length?`<div class="table-wrap"><table class="table"><thead><tr><th>الفاتورة</th><th>المورد</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>التاريخ</th></tr></thead><tbody>${data.purchases.slice().reverse().map(x=>`<tr><td>${x.number}</td><td>${x.party}</td><td>${x.product}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${new Date(x.date).toLocaleString("ar-EG")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">لا توجد فواتير شراء بعد — اضغط «فاتورة شراء» للبدء.</div>`}
+function renderReports(){const revenue=data.sales.reduce((a,x)=>a+x.total,0),cost=data.sales.reduce((a,x)=>a+x.cost,0);$("#profitReport").innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div><div class="kpi-note">المبيعات</div><b>${money(revenue)}</b></div><div><div class="kpi-note">تكلفة المبيعات</div><b>${money(cost)}</b></div><div><div class="kpi-note">الربح الإجمالي</div><b class="green">${money(revenue-cost)}</b></div></div>`}
+
+function makeBarcodeSVG(code){
+ let seed=0; for(const c of code) seed=(seed*31+c.charCodeAt(0))>>>0;
+ let bits="101"; for(let i=0;i<Math.max(60,code.length*9);i++){seed=(1664525*seed+1013904223)>>>0;bits+=(seed%10<5?"1":"0")} bits+="101";
+ let x=10, bars="";
+ for(const b of bits){bars+=`<rect x="${x}" y="8" width="${b==="1"?2:1}" height="82" fill="#111"/>`;x+=2}
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${x+10}" height="120" viewBox="0 0 ${x+10} 120"><rect width="100%" height="100%" fill="#fff"/>${bars}<text x="${(x+10)/2}" y="112" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700">${code}</text></svg>`;
+}
+function showBarcode(id){
+ const p=data.products.find(x=>x.id===id); if(!p)return;
+ openModal("باركود المنتج",`<div class="barcode-box" id="barcodePrint">${makeBarcodeSVG(p.code)}<div style="font-weight:800;margin-top:8px">${p.name}</div><div class="barcode-code">${p.code}</div></div><div class="actions" style="margin-top:14px"><button class="btn gold" onclick="printBarcode(${p.id})">طباعة الباركود</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>`);
+}
+function printBarcode(id){
+ const p=data.products.find(x=>x.id===id);if(!p)return;
+ const w=window.open("","_blank","width=500,height=400");
+ if(!w){toast("اسمح للنوافذ المنبثقة للطباعة");return}
+ w.document.write(`<html dir="rtl"><head><title>باركود ${p.name}</title><style>body{text-align:center;font-family:Arial;padding:30px}svg{max-width:100%}h3{margin:8px}</style></head><body><h3>${p.name}</h3>${makeBarcodeSVG(p.code)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();
+}
+$("#openScanner").onclick=()=>scanner();
+async function scanner(){
+ openModal("ماسح باركود المنتج",`<div class="camera"><video id="video" playsinline autoplay></video><div id="scanStatus" class="scan-result">جاري تشغيل الكاميرا...</div></div><div class="actions" style="margin-top:12px"><button class="btn ghost" onclick="stopScanner();closeModal()">إغلاق</button></div>`);
+ const video=$("#video");let stream=null;window._scannerStream=null;
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});window._scannerStream=stream;video.srcObject=stream;
+  if("BarcodeDetector" in window){const detector=new BarcodeDetector({formats:["ean_13","ean_8","code_128","upc_a","upc_e","qr_code"]});const loop=async()=>{if(!window._scannerStream)return;try{const codes=await detector.detect(video);if(codes.length){const code=codes[0].rawValue;const p=data.products.find(x=>x.code===code);$("#scanStatus").innerHTML=p?`<b>${p.name}</b> — المتاح ${p.stock} — ${p.code}`:`تمت قراءة الكود: <b>${code}</b> — لا يوجد منتج بهذا الكود.`;if(p){stopScanner();setTimeout(()=>closeModal(),1400)}}}catch{}requestAnimationFrame(loop)};loop();
+  }else $("#scanStatus").textContent="الكاميرا تعمل، لكن متصفحك لا يدعم قراءة الباركود مباشرة. استخدم إدخال الكود يدويًا أو متصفحًا أحدث.";
+ }catch(e){$("#scanStatus").textContent="تعذر تشغيل الكاميرا. اسمح للمتصفح باستخدام الكاميرا وتأكد أن الصفحة تعمل على HTTPS أو localhost."}
+}
+function stopScanner(){if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}}
+$("#passwordForm").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);if(f.get("old")!==data.password){toast("كلمة المرور الحالية غير صحيحة");return}if(f.get("new")!==f.get("confirm")){toast("تأكيد كلمة المرور غير مطابق");return}data.password=f.get("new");save();e.target.reset();toast("تم تغيير كلمة المرور")};
+$("#exportData").onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`stockpro-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);toast("تم تصدير النسخة الاحتياطية")};
+$("#importData").onchange=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const incoming=JSON.parse(reader.result);if(!incoming||!Array.isArray(incoming.products)||!Array.isArray(incoming.warehouses))throw Error();if(confirm("سيتم استبدال البيانات الحالية بالنسخة المستوردة. متابعة؟")){data={...structuredClone(defaultData),...incoming};save();toast("تم استيراد النسخة بنجاح")}}catch(err){toast("ملف النسخة الاحتياطية غير صالح")}};reader.readAsText(file);e.target.value=""};
+$("#resetDemo").onclick=()=>{if(confirm("سيتم حذف بيانات البرنامج الحالية وإعادة بيانات التجربة. هل أنت متأكد؟")){data=structuredClone(defaultData);save();toast("تمت إعادة بيانات التجربة")}};
+
+async function requestCameraPermission(showMsg=true){
+ try{
+  if(!navigator.mediaDevices?.getUserMedia){if(showMsg)toast("الكاميرا تحتاج HTTPS أو localhost ومتصفحًا يدعمها");return}
+  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
+  stream.getTracks().forEach(t=>t.stop());
+  const st=$("#cameraState");if(st)st.textContent="تم السماح بالكاميرا ✓";
+  if(showMsg)toast("تم السماح باستخدام الكاميرا");
+ }catch(e){
+  const st=$("#cameraState");if(st)st.textContent="لم يتم السماح";
+  if(showMsg)toast("يجب اختيار «السماح» من نافذة المتصفح/أندرويد");
+ }
+}
+$("#requestCamera").onclick=()=>requestCameraPermission(true);
+window.addEventListener("beforeunload",stopScanner);
+render();
+setTimeout(()=>requestCameraPermission(false),700);
+</script>
+</body>
+</html>
